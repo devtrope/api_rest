@@ -8,8 +8,6 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Services\TokenDecoder;
 use Doctrine\ORM\EntityManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\AuthorizationHeaderTokenExtractor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,6 +68,9 @@ class CartController extends AbstractController
                 $entityManager->flush();
             }
     
+            //A CartContent line must be unique with a product and a user
+            //so if it already exists, we add the quantity to the quantity in the cart.
+            //If it doesn't exist, we just add a new line
             $cart_content = $entityManager->getRepository(CartContent::class)->findOneBy([
                 'cart' => $user->getCart()->getId(),
                 'product' => $product->getId()
