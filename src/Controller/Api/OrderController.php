@@ -83,7 +83,7 @@ class OrderController extends AbstractController
     
             $email = (new Email())
                 ->from('dev.trope@gmail.com')
-                ->to('quentin.schifferle@gmail.com')
+                ->to($user->getEmail())
                 ->subject('Récapitulatif de votre commande')
                 ->text($order_mail);
     
