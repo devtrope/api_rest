@@ -19,14 +19,14 @@ class AuthController extends AbstractController
     UserPasswordHasherInterface $passwordHasher, 
     EntityManagerInterface $entityManager): JsonResponse
     {
-        $credentials = json_decode($request->getContent(), true);
+        $credentials = json_decode($request->getContent());
 
-        if (! isset($credentials['email']) || ! isset($credentials['password'])) {
+        if (! isset($credentials->email) || ! isset($credentials->password)) {
             return $this->json(['error' => 'Invalid credentials'], 401);
         }
 
-        $email = $credentials['email'];
-        $password = $credentials['password'];
+        $email = $credentials->email;
+        $password = $credentials->password;
 
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
