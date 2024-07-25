@@ -13,15 +13,15 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getCarts"])]
+    #[Groups(['getCarts'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getCarts"])]
+    #[Groups(['getCarts'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    #[Groups(["getCarts"])]
+    #[Groups(['getCarts'])]
     private ?string $price = null;
 
     public function getId(): ?int

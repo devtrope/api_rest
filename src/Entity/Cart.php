@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CartRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -15,32 +17,52 @@ class Cart
     #[Groups(["getCarts"])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getCarts"])]
-    private ?Product $product = null;
+    /**
+     * @var Collection<int, CartContent>
+     */
+    #[ORM\OneToMany(targetEntity: CartContent::class, mappedBy: 'cart', orphanRemoval: true)]
+    private Collection $cartContents;
 
-    #[ORM\ManyToOne(inversedBy: 'carts')]
+    #[ORM\OneToOne(inversedBy: 'cart', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column]
-    #[Groups(["getCarts"])]
-    private ?int $quantity = null;
+    public function __construct()
+    {
+        $this->cartContents = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getProduct(): ?Product
+    /**
+     * @return Collection<int, CartContent>
+     */
+    public function getCartContents(): Collection
     {
-        return $this->product;
+        return $this->cartContents;
     }
 
-    public function setProduct(?Product $product): static
+    public function addCartContent(CartContent $cartContent): static
     {
-        $this->product = $product;
+        if (!$this->cartContents->contains($cartContent)) {
+            $this->cartContents->add($cartContent);
+            $cartContent->setCart($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartContent(CartContent $cartContent): static
+    {
+        if ($this->cartContents->removeElement($cartContent)) {
+            // set the owning side to null (unless already changed)
+            if ($cartContent->getCart() === $this) {
+                $cartContent->setCart(null);
+            }
+        }
 
         return $this;
     }
@@ -50,21 +72,9 @@ class Cart
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(User $user): static
     {
         $this->user = $user;
-
-        return $this;
-    }
-
-    public function getQuantity(): ?int
-    {
-        return $this->quantity;
-    }
-
-    public function setQuantity(int $quantity): static
-    {
-        $this->quantity = $quantity;
 
         return $this;
     }

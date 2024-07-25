@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Cart;
+use App\Entity\CartContent;
 use App\Entity\Product;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,29 +48,42 @@ class CartController extends AbstractController
             return $this->json(['error' => 'Invalid product id'], 401);
         }
 
-        if (! is_numeric($quantity)) {
+        if (! is_numeric($quantity) || $quantity === 0) {
             return $this->json(['error' => 'Invalid quantity provided'], 401);
         }
 
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $user['username']]);
 
-        //Checking if there's already a line with this product and this user so we update the quantity
-        $cart = $entityManager->getRepository(Cart::class)->findOneBy(['product' => $product->getId(), 'user' => $user->getId()]);
-        if (! $cart) {
+        //Creation of the cart if it doesn't exist
+        //because we'll need it to add the content
+        if ($user->getCart() === null) {
             $cart = new Cart;
-            $cart->setProduct($product);
             $cart->setUser($user);
-            $cart->setQuantity($quantity);
+            $user->setCart($cart);
+            $entityManager->persist($user);
+            $entityManager->flush();
+        }
+
+        $cart_content = $entityManager->getRepository(CartContent::class)->findOneBy([
+            'cart' => $user->getCart()->getId(),
+            'product' => $product->getId()
+        ]);
+
+        if (! $cart_content) {
+            $content = new CartContent;
+            $content->setCart($user->getCart());
+            $content->setProduct($product);
+            $content->setQuantity($quantity);
         }
         else {
-            $cart->setQuantity($cart->getQuantity() + $quantity);
+            $content = $cart_content;
+            $content->setQuantity($content->getQuantity() + $quantity);
         }
 
-        $entityManager->persist($cart);
+        $entityManager->persist($content);
         $entityManager->flush();
 
-        $user_cart = $entityManager->getRepository(Cart::class)->findBy(['user' => $user->getId()]);
-        $cart_data = $serializer->serialize($user_cart, 'json', ['groups' => 'getCarts']);
+        $cart_data = $serializer->serialize($user->getCart()->getCartContents(), 'json', ['groups' => 'getCarts']);
 
         return $this->json(['cart' => json_decode($cart_data)]);
     }
