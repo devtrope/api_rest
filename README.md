@@ -96,10 +96,10 @@ Vous devriez recevoir un token si les informations renseignées sont correctes.
 
 Pour les 2 autres actions, ce token doit être passé dans les autorisations en choisissant le type `Bearer Token` et en le collant dans le champ `Token`.
 
-## Panier
+### Panier
 
 Pour ajouter un produit au panier, renseignez l'URL `https://127.0.0.1:8000/api/cart`. Cette méthode attend 2 paramètres, `product_id` et `quantity`.
 
-## Commande
+### Commande
 
 Pour valider la commande, renseignez l'URL `https://127.0.0.1:8000/api/order`. Cette méthode attend 1 seul paramètre, `cart_id`.

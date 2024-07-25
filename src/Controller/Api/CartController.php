@@ -89,7 +89,7 @@ class CartController extends AbstractController
             $entityManager->persist($content);
             $entityManager->flush();
     
-            $cart_data = $serializer->serialize($user->getCart()->getCartContents(), 'json', ['groups' => 'getCarts']);
+            $cart_data = $serializer->serialize($content, 'json', ['groups' => 'getCarts']);
     
             return $this->json(['cart' => json_decode($cart_data)]);
         }
