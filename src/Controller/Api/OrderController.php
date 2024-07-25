@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class OrderController extends AbstractController
 {
-    private $tokenDecoder;
+    private TokenDecoder $tokenDecoder;
 
     public function __construct(TokenDecoder $tokenDecoder) {
         $this->tokenDecoder = $tokenDecoder;
@@ -31,6 +31,9 @@ class OrderController extends AbstractController
         try {
             $user = $this->tokenDecoder->decodeToken($request);
     
+            /**
+             * @var object
+             */
             $datas = json_decode($request->getContent());
     
             if (! isset($datas->cart_id)) {
@@ -45,6 +48,10 @@ class OrderController extends AbstractController
     
             $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $user['username']]);
     
+            if ($user === null) {
+                return $this->json(['error' => 'Invalid user'], 401);
+            }
+
             if ($cart->getUser()->getId() != $user->getId()) {
                 return $this->json(['error' => 'Can\'t access cart'], 401);
             }

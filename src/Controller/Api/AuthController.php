@@ -19,6 +19,9 @@ class AuthController extends AbstractController
     UserPasswordHasherInterface $passwordHasher, 
     EntityManagerInterface $entityManager): JsonResponse
     {
+        /**
+         * @var object
+         */
         $credentials = json_decode($request->getContent());
 
         if (! isset($credentials->email) || ! isset($credentials->password)) {

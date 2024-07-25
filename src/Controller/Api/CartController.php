@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class CartController extends AbstractController
 {
-    private $tokenDecoder;
+    private TokenDecoder $tokenDecoder;
 
     public function __construct(TokenDecoder $tokenDecoder) {
         $this->tokenDecoder = $tokenDecoder;
@@ -32,6 +32,9 @@ class CartController extends AbstractController
         try {
             $user = $this->tokenDecoder->decodeToken($request);
     
+            /**
+             * @var object
+             */
             $datas = json_decode($request->getContent());
     
             if (! isset($datas->product_id) || ! isset($datas->quantity)) {
@@ -52,7 +55,11 @@ class CartController extends AbstractController
             }
     
             $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $user['username']]);
-    
+            
+            if ($user === null) {
+                return $this->json(['error' => 'Invalid user'], 401);
+            }
+
             //Creation of the cart if it doesn't exist
             //because we'll need it to add the content
             if ($user->getCart() === null) {

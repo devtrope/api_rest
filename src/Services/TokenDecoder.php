@@ -7,13 +7,13 @@ use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\AuthorizationHeaderToken
 use Symfony\Component\HttpFoundation\Request;
 
 class TokenDecoder {
-    private $JWTEncoder;
+    private JWTEncoderInterface $JWTEncoder;
 
     public function __construct(JWTEncoderInterface $JWTEncoder) {
         $this->JWTEncoder = $JWTEncoder;
     }
 
-    public function decodeToken(Request $request) {
+    public function decodeToken(Request $request): array {
         $extractor = new AuthorizationHeaderTokenExtractor('Bearer', 'Authorization');
 
         $token = $extractor->extract($request);
